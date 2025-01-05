@@ -3,17 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Weather App" Height="400" Width="450">
     <Window.Resources>
-        <!-- Define the resources for Light Theme -->
-        <ResourceDictionary x:Key="LightTheme">
-            <SolidColorBrush x:Key="BackgroundBrush" Color="White"/>
-            <SolidColorBrush x:Key="TextBrush" Color="Black"/>
-        </ResourceDictionary>
-
-        <!-- Define the resources for Dark Theme -->
-        <ResourceDictionary x:Key="DarkTheme">
-            <SolidColorBrush x:Key="BackgroundBrush" Color="#2C2C2C"/>
-            <SolidColorBrush x:Key="TextBrush" Color="White"/>
-        </ResourceDictionary>
+        <!-- Empty Resources section, as we will load themes dynamically in code -->
     </Window.Resources>
 
     <Grid Background="{DynamicResource BackgroundBrush}" Margin="10">
