@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Net.Http;
-using System.Text;
-using System.Windows;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WeatherApp
 {
@@ -86,13 +85,13 @@ namespace WeatherApp
             {
                 // Apply dark theme
                 this.Resources.MergedDictionaries.Clear();
-                this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri("pack://application:,,,/WeatherApp;component/DarkTheme.xaml") });
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri("pack://application:,,,/WeatherApp;component/Themes/DarkTheme.xaml") });
             }
             else
             {
                 // Apply light theme
                 this.Resources.MergedDictionaries.Clear();
-                this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri("pack://application:,,,/WeatherApp;component/LightTheme.xaml") });
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri("pack://application:,,,/WeatherApp;component/Themes/LightTheme.xaml") });
             }
         }
 
