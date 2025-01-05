@@ -50,7 +50,7 @@ namespace WeatherApp
 
         public static async Task<WeatherResponse> GetWeatherAsync(string city)
         {
-            string apiKey = "YOUR_API_KEY"; // Replace with your OpenWeatherMap API key
+            string apiKey = "Use your Own API key"; // Replace with your API key
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
 
             using (HttpClient client = new HttpClient())
@@ -58,38 +58,49 @@ namespace WeatherApp
                 try
                 {
                     HttpResponseMessage response = await client.GetAsync(url);
+
                     if (response.IsSuccessStatusCode)
                     {
                         string responseBody = await response.Content.ReadAsStringAsync();
                         return JsonConvert.DeserializeObject<WeatherResponse>(responseBody);
                     }
+                    else
+                    {
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Error: {response.StatusCode} - {errorResponse}",
+                                        "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (HttpRequestException httpEx)
+                {
+                    MessageBox.Show($"HTTP Error: {httpEx.Message}", "Network Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error: {ex.Message}", "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Unexpected Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
 
             return null;
         }
-    }
 
-    // Root JSON response class
-    public class WeatherResponse
-    {
-        public string Name { get; set; } // City name
-        public Main Main { get; set; }
-        public Weather[] Weather { get; set; }
-    }
+        // Root JSON response class
+        public class WeatherResponse
+        {
+            public string Name { get; set; } // City name
+            public Main Main { get; set; }
+            public Weather[] Weather { get; set; }
+        }
 
-    public class Main
-    {
-        public double Temp { get; set; } // Temperature
-        public int Humidity { get; set; } // Humidity
-    }
+        public class Main
+        {
+            public double Temp { get; set; } // Temperature
+            public int Humidity { get; set; } // Humidity
+        }
 
-    public class Weather
-    {
-        public string Description { get; set; } // Weather description
+        public class Weather
+        {
+            public string Description { get; set; } // Weather description
+        }
     }
 }
