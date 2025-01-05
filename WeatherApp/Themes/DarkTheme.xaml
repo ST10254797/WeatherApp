@@ -3,5 +3,15 @@
     <!-- Dark theme resources -->
     <Color x:Key="PrimaryBackgroundColor">#2E2E2E</Color>
     <Color x:Key="PrimaryTextColor">White</Color>
-    <!-- Add other styles for the dark theme -->
+
+    <!-- SolidColorBrushes for styling -->
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource PrimaryBackgroundColor}"/>
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource PrimaryTextColor}"/>
+
+    <!-- Add other styles as needed -->
+    <Style TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+        <!-- Add more styles for buttons, textboxes, etc. -->
+    </Style>
 </ResourceDictionary>
