@@ -1,0 +1,7 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Light theme resources -->
+    <Color x:Key="PrimaryBackgroundColor">White</Color>
+    <Color x:Key="PrimaryTextColor">Black</Color>
+    <!-- Add other styles for the light theme -->
+</ResourceDictionary>

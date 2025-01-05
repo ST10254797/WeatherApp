@@ -2,26 +2,17 @@
 using System.Net.Http;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Threading.Tasks;
 
 namespace WeatherApp
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
         }
+
         private async void GetWeatherButton_Click(object sender, RoutedEventArgs e)
         {
             string city = CityTextBox.Text.Trim();
@@ -50,7 +41,7 @@ namespace WeatherApp
 
         public static async Task<WeatherResponse> GetWeatherAsync(string city)
         {
-            string apiKey = "Use your Own API key"; // Replace with your API key
+            string apiKey = "c2cfb03bac68bbf380f03cdbc32a83e4"; // Replace with your API key
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
 
             using (HttpClient client = new HttpClient())
@@ -82,6 +73,27 @@ namespace WeatherApp
             }
 
             return null;
+        }
+
+        private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Toggle between light and dark theme
+            var currentTheme = (this.Resources.MergedDictionaries.Count > 0 &&
+                                this.Resources.MergedDictionaries[0].Source.OriginalString.Contains("LightTheme")) ?
+                                "Light" : "Dark";
+
+            if (currentTheme == "Light")
+            {
+                // Apply dark theme
+                this.Resources.MergedDictionaries.Clear();
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri("pack://application:,,,/WeatherApp;component/DarkTheme.xaml") });
+            }
+            else
+            {
+                // Apply light theme
+                this.Resources.MergedDictionaries.Clear();
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri("pack://application:,,,/WeatherApp;component/LightTheme.xaml") });
+            }
         }
 
         // Root JSON response class
