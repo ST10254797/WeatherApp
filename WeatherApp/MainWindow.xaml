@@ -13,6 +13,10 @@
         <!-- Theme Toggle Button -->
         <ToggleButton Name="ThemeToggleButton" Content="Toggle Theme" Grid.Row="0" HorizontalAlignment="Left" Margin="5" Width="120" Height="30" Click="ThemeToggleButton_Click" />
 
+        <!-- Unit Toggle Button -->
+        <ToggleButton x:Name="UnitToggleButton" Content="°C" Grid.Row="0" HorizontalAlignment="Right" Margin="5" Width="50" Height="30" Click="UnitToggleButton_Click" />
+
+
         <!-- City Input -->
         <TextBlock Text="Enter City Name:" FontSize="16" Grid.Row="1" Margin="5" />
         <TextBox x:Name="CityTextBox" Grid.Row="1" FontSize="14" Margin="5" />

@@ -25,12 +25,15 @@ namespace WeatherApp
                 return;
             }
 
-            var weather = await GetWeatherAsync(city);
+            // Determine whether to use Celsius or Fahrenheit based on the toggle button
+            string unit = UnitToggleButton.IsChecked == true ? "metric" : "imperial";  // "metric" for Celsius, "imperial" for Fahrenheit
+
+            var weather = await GetWeatherAsync(city, unit);
 
             if (weather != null)
             {
                 CityNameText.Text = $"City: {weather.Name}";
-                TemperatureText.Text = $"Temperature: {weather.Main.Temp}°C";
+                TemperatureText.Text = $"Temperature: {weather.Main.Temp}°{(unit == "metric" ? "C" : "F")}";
                 HumidityText.Text = $"Humidity: {weather.Main.Humidity}%";
                 DescriptionText.Text = $"Description: {weather.Weather[0].Description}";
 
@@ -44,10 +47,10 @@ namespace WeatherApp
             }
         }
 
-        public static async Task<WeatherResponse> GetWeatherAsync(string city)
+        public static async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
             string apiKey = "Enter your own API Key"; // Replace with your API key
-            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
             {
@@ -104,6 +107,19 @@ namespace WeatherApp
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading icon: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UnitToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Update the content of the toggle button when clicked
+            if (UnitToggleButton.IsChecked == true)
+            {
+                UnitToggleButton.Content = "°C";  // Celsius
+            }
+            else
+            {
+                UnitToggleButton.Content = "°F";  // Fahrenheit
             }
         }
 
