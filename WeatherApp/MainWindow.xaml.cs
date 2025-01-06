@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace WeatherApp
 {
@@ -30,6 +33,9 @@ namespace WeatherApp
                 TemperatureText.Text = $"Temperature: {weather.Main.Temp}°C";
                 HumidityText.Text = $"Humidity: {weather.Main.Humidity}%";
                 DescriptionText.Text = $"Description: {weather.Weather[0].Description}";
+
+                // Update the weather icon based on the weather description
+                UpdateWeatherIcon(weather.Weather[0].Description);
             }
             else
             {
@@ -74,6 +80,33 @@ namespace WeatherApp
             return null;
         }
 
+        private void UpdateWeatherIcon(string weatherCondition)
+        {
+            // Map weather conditions to specific icons
+            string iconPath = weatherCondition.ToLower() switch
+            {
+                "clear sky" => "Assets/icons/sunny.png",
+                "few clouds" => "Assets/icons/cloudy.png",
+                "scattered clouds" => "Assets/icons/cloudy.png",
+                "broken clouds" => "Assets/icons/cloudy.png",
+                "shower rain" => "Assets/icons/rainy.png",
+                "rain" => "Assets/icons/rainy.png",
+                "thunderstorm" => "Assets/icons/rainy.png",
+                "snow" => "Assets/icons/snowy.png",
+                _ => "Assets/icons/default.png" // Default icon for unknown conditions
+            };
+
+            // Update the Image source for the weather icon
+            try
+            {
+                WeatherIcon.Source = new BitmapImage(new Uri(iconPath, UriKind.Relative));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading icon: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
         {
             // Check current theme by checking if DarkTheme is applied
@@ -99,8 +132,6 @@ namespace WeatherApp
                 });
             }
         }
-
-
 
         // Root JSON response class
         public class WeatherResponse
