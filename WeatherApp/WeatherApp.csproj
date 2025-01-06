@@ -9,8 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Icons\cloudy.png" />
+    <None Remove="Assets\Icons\default.png" />
+    <None Remove="Assets\Icons\rainy.png" />
+    <None Remove="Assets\Icons\snow.png" />
+    <None Remove="Assets\Icons\sunny.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Remove="Themes\DarkTheme.xaml" />
     <Page Remove="Themes\LightTheme.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Icons\sunny.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\Icons\cloudy.png" />
+    <Resource Include="Assets\Icons\default.png" />
+    <Resource Include="Assets\Icons\rainy.png" />
+    <Resource Include="Assets\Icons\snow.png" />
     <Resource Include="Themes\DarkTheme.xaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
