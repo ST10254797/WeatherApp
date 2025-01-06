@@ -13,6 +13,7 @@ namespace WeatherApp
         public MainWindow()
         {
             InitializeComponent();
+            UnitToggleButton.IsChecked = true;  // Set to Celsius by default
         }
 
         private async void GetWeatherButton_Click(object sender, RoutedEventArgs e)
