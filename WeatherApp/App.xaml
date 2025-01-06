@@ -3,12 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <!-- Set default theme (e.g., LightTheme) -->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- Light theme resources -->
                 <ResourceDictionary Source="pack://application:,,,/WeatherApp;component/Themes/LightTheme.xaml"/>
-                <!-- Dark theme resources -->
-                <ResourceDictionary Source="pack://application:,,,/WeatherApp;component/Themes/DarkTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

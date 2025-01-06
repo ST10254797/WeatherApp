@@ -76,22 +76,11 @@ namespace WeatherApp
 
         private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            // Toggle between light and dark theme
-            var currentTheme = (this.Resources.MergedDictionaries.Count > 0 &&
-                                this.Resources.MergedDictionaries[0].Source.OriginalString.Contains("LightTheme.xaml")) ?
-                                "Light" : "Dark";
+            // Check current theme by checking if DarkTheme is applied
+            var currentTheme = this.Resources.MergedDictionaries.FirstOrDefault()?.Source?.OriginalString;
 
-            if (currentTheme == "Light")
-            {
-                // Apply dark theme
-                this.Resources.MergedDictionaries.Clear();
-                this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                {
-                    Source = new Uri("pack://application:,,,/WeatherApp;component/Themes/DarkTheme.xaml")
-                });
-
-            }
-            else
+            // If the current theme is dark, switch to light
+            if (currentTheme != null && currentTheme.Contains("DarkTheme"))
             {
                 // Apply light theme
                 this.Resources.MergedDictionaries.Clear();
@@ -99,9 +88,18 @@ namespace WeatherApp
                 {
                     Source = new Uri("pack://application:,,,/WeatherApp;component/Themes/LightTheme.xaml")
                 });
-
+            }
+            else
+            {
+                // Apply dark theme
+                this.Resources.MergedDictionaries.Clear();
+                this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                {
+                    Source = new Uri("pack://application:,,,/WeatherApp;component/Themes/DarkTheme.xaml")
+                });
             }
         }
+
 
 
         // Root JSON response class
