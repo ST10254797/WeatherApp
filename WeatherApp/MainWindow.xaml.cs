@@ -49,7 +49,7 @@ namespace WeatherApp
 
         public static async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
-            string apiKey = "Enter your own API Key"; // Replace with your API key
+            string apiKey = "Enter your own key"; // Replace with your API key
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
@@ -83,36 +83,39 @@ namespace WeatherApp
             return null;
         }
 
-        private void UpdateWeatherIcon(string weatherCondition)
-        {
-            // Map weather conditions to specific icons
-            string iconPath = weatherCondition.ToLower() switch
-            {
-                "clear sky" => "Assets/icons/sunny.png",
-                "few clouds" => "Assets/icons/cloudy.png",
-                "scattered clouds" => "Assets/icons/cloudy.png",
-                "broken clouds" => "Assets/icons/cloudy.png",
-                "shower rain" => "Assets/icons/rainy.png",
-                "rain" => "Assets/icons/rainy.png",
-                "thunderstorm" => "Assets/icons/rainy.png",
-                "snow" => "Assets/icons/snowy.png",
-                _ => "Assets/icons/default.png" // Default icon for unknown conditions
-            };
+       private void UpdateWeatherIcon(string weatherCondition)
+{
+    // Map weather conditions to specific icons
+    string iconPath = weatherCondition.ToLower() switch
+    {
+        "clear sky" => "Assets/icons/sunny.png",
+        "few clouds" => "Assets/icons/cloudy.png",
+        "scattered clouds" => "Assets/icons/cloudy.png",
+        "broken clouds" => "Assets/icons/cloudy.png",
+        "shower rain" => "Assets/icons/rainy.png",
+        "rain" => "Assets/icons/rainy.png",
+        "thunderstorm" => "Assets/icons/rainy.png",
+        "snow" => "Assets/icons/snowy.png",
+        _ => "Assets/icons/default.png" // Default icon for unknown conditions
+    };
 
-            // Update the Image source for the weather icon
-            try
-            {
-                WeatherIcon.Source = new BitmapImage(new Uri(iconPath, UriKind.Relative));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading icon: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+    // Update the Image source for the weather icon
+    try
+    {
+        WeatherIcon.Source = new BitmapImage(new Uri(iconPath, UriKind.Relative));
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Error loading icon: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+}
 
-        private void UnitToggleButton_Click(object sender, RoutedEventArgs e)
+        private async void UnitToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            // Update the content of the toggle button when clicked
+            // Determine the unit based on the toggle button
+            string unit = UnitToggleButton.IsChecked == true ? "metric" : "imperial";  // "metric" for Celsius, "imperial" for Fahrenheit
+
+            // Update the button content based on the selected unit
             if (UnitToggleButton.IsChecked == true)
             {
                 UnitToggleButton.Content = "°C";  // Celsius
@@ -120,6 +123,27 @@ namespace WeatherApp
             else
             {
                 UnitToggleButton.Content = "°F";  // Fahrenheit
+            }
+
+            // Get the current city from the text box
+            string city = CityTextBox.Text.Trim();
+
+            if (!string.IsNullOrEmpty(city))
+            {
+                // Fetch weather data with the new unit
+                var weather = await GetWeatherAsync(city, unit);
+
+                if (weather != null)
+                {
+                    // Update the weather information based on the unit change
+                    CityNameText.Text = $"City: {weather.Name}";
+                    TemperatureText.Text = $"Temperature: {weather.Main.Temp}°{(unit == "metric" ? "C" : "F")}";
+                    HumidityText.Text = $"Humidity: {weather.Main.Humidity}%";
+                    DescriptionText.Text = $"Description: {weather.Weather[0].Description}";
+
+                    // Update the weather icon based on the weather description
+                    UpdateWeatherIcon(weather.Weather[0].Description);
+                }
             }
         }
 
