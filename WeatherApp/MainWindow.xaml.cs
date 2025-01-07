@@ -55,7 +55,7 @@ namespace WeatherApp
 
         public static async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
-            string apiKey = "c2cfb03bac68bbf380f03cdbc32a83e4"; // Replace with your API key
+            string apiKey = "Enter your own key"; // Replace with your API key
             string cityUrl = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
