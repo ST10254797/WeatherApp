@@ -196,7 +196,7 @@ namespace WeatherApp
         {
             public double Temp { get; set; } // Temperature
             public int Humidity { get; set; } // Humidity
-            public int Pressure { get; set; }
+            public int Pressure { get; set; } // Pressure
         }
 
         public class Weather
