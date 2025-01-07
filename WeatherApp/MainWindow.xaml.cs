@@ -37,6 +37,11 @@ namespace WeatherApp
                 TemperatureText.Text = $"Temperature: {weather.Main.Temp}°{(unit == "metric" ? "C" : "F")}";
                 HumidityText.Text = $"Humidity: {weather.Main.Humidity}%";
                 DescriptionText.Text = $"Description: {weather.Weather[0].Description}";
+                WindSpeedText.Text = $"Wind Speed: {weather.Wind.Speed} {(unit == "metric" ? "m/s" : "mph")}";
+                WindDirectionText.Text = $"Wind Direction: {weather.Wind.Deg}°";
+                VisibilityText.Text = $"Visibility: {weather.Visibility / 1000.0} km";
+                PressureText.Text = $"Pressure: {weather.Main.Pressure} hPa";
+
 
                 // Update the weather icon based on the weather description
                 UpdateWeatherIcon(weather.Weather[0].Description);
@@ -50,25 +55,26 @@ namespace WeatherApp
 
         public static async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
-            string apiKey = "Enter your own key"; // Replace with your API key
-            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
+            string apiKey = "c2cfb03bac68bbf380f03cdbc32a83e4"; // Replace with your API key
+            string cityUrl = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync(url);
+                    // Get city weather data
+                    HttpResponseMessage cityResponse = await client.GetAsync(cityUrl);
 
-                    if (response.IsSuccessStatusCode)
+                    if (cityResponse.IsSuccessStatusCode)
                     {
-                        string responseBody = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<WeatherResponse>(responseBody);
+                        string cityResponseBody = await cityResponse.Content.ReadAsStringAsync();
+                        var weatherResponse = JsonConvert.DeserializeObject<WeatherResponse>(cityResponseBody);
+                        return weatherResponse;
                     }
                     else
                     {
-                        string errorResponse = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show($"Error: {response.StatusCode} - {errorResponse}",
-                                        "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        string errorResponse = await cityResponse.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Error: {cityResponse.StatusCode} - {errorResponse}", "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
                 catch (HttpRequestException httpEx)
@@ -84,7 +90,8 @@ namespace WeatherApp
             return null;
         }
 
-       private void UpdateWeatherIcon(string weatherCondition)
+
+        private void UpdateWeatherIcon(string weatherCondition)
 {
     // Map weather conditions to specific icons
     string iconPath = weatherCondition.ToLower() switch
@@ -96,7 +103,7 @@ namespace WeatherApp
         "shower rain" => "Assets/icons/rainy.png",
         "rain" => "Assets/icons/rainy.png",
         "thunderstorm" => "Assets/icons/rainy.png",
-        "snow" => "Assets/icons/snowy.png",
+        "snow" => "Assets/icons/snow.png",
         _ => "Assets/icons/default.png" // Default icon for unknown conditions
     };
 
@@ -177,20 +184,36 @@ namespace WeatherApp
         // Root JSON response class
         public class WeatherResponse
         {
-            public string Name { get; set; } // City name
+            public string Name { get; set; }
             public Main Main { get; set; }
             public Weather[] Weather { get; set; }
+            public Coord Coord { get; set; }
+            public Wind Wind { get; set; }
+            public int Visibility { get; set; }
         }
 
         public class Main
         {
             public double Temp { get; set; } // Temperature
             public int Humidity { get; set; } // Humidity
+            public int Pressure { get; set; }
         }
 
         public class Weather
         {
             public string Description { get; set; } // Weather description
         }
+        public class Coord
+        {
+            public double Lat { get; set; }
+            public double Lon { get; set; }
+        }
+
+        public class Wind
+        {
+            public double Speed { get; set; }
+            public int Deg { get; set; }
+        }
+
     }
 }
