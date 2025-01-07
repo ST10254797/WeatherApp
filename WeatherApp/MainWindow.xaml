@@ -36,6 +36,9 @@
             <TextBlock x:Name="WindDirectionText" FontSize="16" Foreground="{DynamicResource TextBrush}" />
             <TextBlock x:Name="VisibilityText" FontSize="16" Foreground="{DynamicResource TextBrush}" />
             <TextBlock x:Name="PressureText" FontSize="16" Foreground="{DynamicResource TextBrush}" />
+
+            <!-- Weather Alerts -->
+            <TextBlock x:Name="AlertsText" Text="Weather Alerts will be displayed here" Margin="10" Foreground="Red" />
         </StackPanel>
     </Grid>
 </Window>

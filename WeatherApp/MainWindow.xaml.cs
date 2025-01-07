@@ -26,8 +26,7 @@ namespace WeatherApp
                 return;
             }
 
-            // Determine whether to use Celsius or Fahrenheit based on the toggle button
-            string unit = UnitToggleButton.IsChecked == true ? "metric" : "imperial";  // "metric" for Celsius, "imperial" for Fahrenheit
+            string unit = UnitToggleButton.IsChecked == true ? "metric" : "imperial";
 
             var weather = await GetWeatherAsync(city, unit);
 
@@ -42,6 +41,16 @@ namespace WeatherApp
                 VisibilityText.Text = $"Visibility: {weather.Visibility / 1000.0} km";
                 PressureText.Text = $"Pressure: {weather.Main.Pressure} hPa";
 
+                // Check if there are any weather alerts
+                if (weather.Alerts != null && weather.Alerts.Any())
+                {
+                    // Display the first alert
+                    AlertsText.Text = $"Weather Alert: {weather.Alerts[0].Event} - {weather.Alerts[0].Description}";
+                }
+                else
+                {
+                    AlertsText.Text = "No weather alerts at this time.";
+                }
 
                 // Update the weather icon based on the weather description
                 UpdateWeatherIcon(weather.Weather[0].Description);
@@ -53,22 +62,43 @@ namespace WeatherApp
             }
         }
 
-        public static async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
+        private async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
-            string apiKey = "Enter your own key"; // Replace with your API key
-            string cityUrl = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
+            string apiKey = "Enter your own API key"; // Replace with your OpenWeather API key
+            string cityUrl = $"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    // Get city weather data
+                    // Step 1: Fetch city data to get the coordinates (latitude, longitude)
                     HttpResponseMessage cityResponse = await client.GetAsync(cityUrl);
 
                     if (cityResponse.IsSuccessStatusCode)
                     {
                         string cityResponseBody = await cityResponse.Content.ReadAsStringAsync();
                         var weatherResponse = JsonConvert.DeserializeObject<WeatherResponse>(cityResponseBody);
+
+                        if (weatherResponse != null)
+                        {
+                            // Step 2: Use coordinates to fetch data from the One Call API (including weather alerts)
+                            string oneCallUrl = $"https://api.openweathermap.org/data/3.0/onecall?lat={weatherResponse.Coord.Lat}&lon={weatherResponse.Coord.Lon}&exclude=hourly,daily&appid={apiKey}";
+
+                            HttpResponseMessage oneCallResponse = await client.GetAsync(oneCallUrl);
+
+                            if (oneCallResponse.IsSuccessStatusCode)
+                            {
+                                string oneCallResponseBody = await oneCallResponse.Content.ReadAsStringAsync();
+                                var oneCallResponseData = JsonConvert.DeserializeObject<OneCallWeatherResponse>(oneCallResponseBody);
+
+                                // If weather alerts are present, add them to the weather response
+                                if (oneCallResponseData?.Alerts != null && oneCallResponseData.Alerts.Any())
+                                {
+                                    weatherResponse.Alerts = oneCallResponseData.Alerts;
+                                }
+                            }
+                        }
+
                         return weatherResponse;
                     }
                     else
@@ -190,6 +220,8 @@ namespace WeatherApp
             public Coord Coord { get; set; }
             public Wind Wind { get; set; }
             public int Visibility { get; set; }
+
+            public Alert[] Alerts { get; set; } // Added Alerts property here
         }
 
         public class Main
@@ -214,6 +246,20 @@ namespace WeatherApp
             public double Speed { get; set; }
             public int Deg { get; set; }
         }
+
+        public class OneCallWeatherResponse
+{
+    public Alert[] Alerts { get; set; }
+}
+
+public class Alert
+{
+    public string SenderName { get; set; } // Who issued the alert
+    public string Event { get; set; } // Type of the weather event (e.g., storm, flood)
+    public long Start { get; set; } // Start time of the alert (Unix timestamp)
+    public long End { get; set; } // End time of the alert (Unix timestamp)
+    public string Description { get; set; } // Detailed description of the alert
+}
 
     }
 }
