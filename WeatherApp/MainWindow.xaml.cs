@@ -1,22 +1,32 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace WeatherApp
 {
     public partial class MainWindow : Window
     {
+        private List<string> searchHistory = new List<string>(); // Store searched cities
+
         public MainWindow()
         {
             InitializeComponent();
             UnitToggleButton.IsChecked = true;  // Set to Celsius by default
+            LoadSearchHistory(); // Load previous search history when the app starts
         }
 
         private async void GetWeatherButton_Click(object sender, RoutedEventArgs e)
+        {
+            await GetWeatherForCity();
+        }
+
+        private async Task GetWeatherForCity()
         {
             string city = CityTextBox.Text.Trim();
 
@@ -27,33 +37,12 @@ namespace WeatherApp
             }
 
             string unit = UnitToggleButton.IsChecked == true ? "metric" : "imperial";
-
             var weather = await GetWeatherAsync(city, unit);
 
             if (weather != null)
             {
-                CityNameText.Text = $"City: {weather.Name}";
-                TemperatureText.Text = $"Temperature: {weather.Main.Temp}°{(unit == "metric" ? "C" : "F")}";
-                HumidityText.Text = $"Humidity: {weather.Main.Humidity}%";
-                DescriptionText.Text = $"Description: {weather.Weather[0].Description}";
-                WindSpeedText.Text = $"Wind Speed: {weather.Wind.Speed} {(unit == "metric" ? "m/s" : "mph")}";
-                WindDirectionText.Text = $"Wind Direction: {weather.Wind.Deg}°";
-                VisibilityText.Text = $"Visibility: {weather.Visibility / 1000.0} km";
-                PressureText.Text = $"Pressure: {weather.Main.Pressure} hPa";
-
-                // Check if there are any weather alerts
-                if (weather.Alerts != null && weather.Alerts.Any())
-                {
-                    // Display the first alert
-                    AlertsText.Text = $"Weather Alert: {weather.Alerts[0].Event} - {weather.Alerts[0].Description}";
-                }
-                else
-                {
-                    AlertsText.Text = "No weather alerts at this time.";
-                }
-
-                // Update the weather icon based on the weather description
-                UpdateWeatherIcon(weather.Weather[0].Description);
+                DisplayWeather(weather, unit);
+                AddCityToHistory(city); // Add the city to search history
             }
             else
             {
@@ -62,42 +51,47 @@ namespace WeatherApp
             }
         }
 
+        // Display the weather details on the UI
+        private void DisplayWeather(WeatherResponse weather, string unit)
+        {
+            CityNameText.Text = $"City: {weather.Name}";
+            TemperatureText.Text = $"Temperature: {weather.Main.Temp}°{(unit == "metric" ? "C" : "F")}";
+            HumidityText.Text = $"Humidity: {weather.Main.Humidity}%";
+            DescriptionText.Text = $"Description: {weather.Weather[0].Description}";
+            WindSpeedText.Text = $"Wind Speed: {weather.Wind.Speed} {(unit == "metric" ? "m/s" : "mph")}";
+            WindDirectionText.Text = $"Wind Direction: {weather.Wind.Deg}°";
+            VisibilityText.Text = $"Visibility: {weather.Visibility / 1000.0} km";
+            PressureText.Text = $"Pressure: {weather.Main.Pressure} hPa";
+
+            // Check if there are any weather alerts
+            if (weather.Alerts != null && weather.Alerts.Any())
+            {
+                AlertsText.Text = $"Weather Alert: {weather.Alerts[0].Event} - {weather.Alerts[0].Description}";
+            }
+            else
+            {
+                AlertsText.Text = "No weather alerts at this time.";
+            }
+
+            // Update the weather icon based on the weather description
+            UpdateWeatherIcon(weather.Weather[0].Description);
+        }
+
         private async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
-            string apiKey = "Enter your own API key"; // Replace with your OpenWeather API key
+            string apiKey = "c2cfb03bac68bbf380f03cdbc32a83e4"; // Replace with your OpenWeather API key
             string cityUrl = $"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    // Step 1: Fetch city data to get the coordinates (latitude, longitude)
                     HttpResponseMessage cityResponse = await client.GetAsync(cityUrl);
 
                     if (cityResponse.IsSuccessStatusCode)
                     {
                         string cityResponseBody = await cityResponse.Content.ReadAsStringAsync();
                         var weatherResponse = JsonConvert.DeserializeObject<WeatherResponse>(cityResponseBody);
-
-                        if (weatherResponse != null)
-                        {
-                            // Step 2: Use coordinates to fetch data from the One Call API (including weather alerts)
-                            string oneCallUrl = $"https://api.openweathermap.org/data/3.0/onecall?lat={weatherResponse.Coord.Lat}&lon={weatherResponse.Coord.Lon}&exclude=hourly,daily&appid={apiKey}";
-
-                            HttpResponseMessage oneCallResponse = await client.GetAsync(oneCallUrl);
-
-                            if (oneCallResponse.IsSuccessStatusCode)
-                            {
-                                string oneCallResponseBody = await oneCallResponse.Content.ReadAsStringAsync();
-                                var oneCallResponseData = JsonConvert.DeserializeObject<OneCallWeatherResponse>(oneCallResponseBody);
-
-                                // If weather alerts are present, add them to the weather response
-                                if (oneCallResponseData?.Alerts != null && oneCallResponseData.Alerts.Any())
-                                {
-                                    weatherResponse.Alerts = oneCallResponseData.Alerts;
-                                }
-                            }
-                        }
 
                         return weatherResponse;
                     }
@@ -120,34 +114,31 @@ namespace WeatherApp
             return null;
         }
 
-
+        // Update the weather icon based on the weather description
         private void UpdateWeatherIcon(string weatherCondition)
-{
-    // Map weather conditions to specific icons
-    string iconPath = weatherCondition.ToLower() switch
-    {
-        "clear sky" => "Assets/icons/sunny.png",
-        "few clouds" => "Assets/icons/cloudy.png",
-        "scattered clouds" => "Assets/icons/cloudy.png",
-        "broken clouds" => "Assets/icons/cloudy.png",
-        "shower rain" => "Assets/icons/rainy.png",
-        "rain" => "Assets/icons/rainy.png",
-        "thunderstorm" => "Assets/icons/rainy.png",
-        "snow" => "Assets/icons/snow.png",
-        _ => "Assets/icons/default.png" // Default icon for unknown conditions
-    };
+        {
+            string iconPath = weatherCondition.ToLower() switch
+            {
+                "clear sky" => "Assets/icons/sunny.png",
+                "few clouds" => "Assets/icons/cloudy.png",
+                "scattered clouds" => "Assets/icons/cloudy.png",
+                "broken clouds" => "Assets/icons/cloudy.png",
+                "shower rain" => "Assets/icons/rainy.png",
+                "rain" => "Assets/icons/rainy.png",
+                "thunderstorm" => "Assets/icons/rainy.png",
+                "snow" => "Assets/icons/snow.png",
+                _ => "Assets/icons/default.png"
+            };
 
-    // Update the Image source for the weather icon
-    try
-    {
-        WeatherIcon.Source = new BitmapImage(new Uri(iconPath, UriKind.Relative));
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Error loading icon: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-    }
-}
-
+            try
+            {
+                WeatherIcon.Source = new BitmapImage(new Uri(iconPath, UriKind.Relative));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading icon: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private async void UnitToggleButton_Click(object sender, RoutedEventArgs e)
         {
             // Determine the unit based on the toggle button
@@ -185,15 +176,14 @@ namespace WeatherApp
             }
         }
 
+
+        // Handle theme toggle click
         private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            // Check current theme by checking if DarkTheme is applied
             var currentTheme = this.Resources.MergedDictionaries.FirstOrDefault()?.Source?.OriginalString;
 
-            // If the current theme is dark, switch to light
             if (currentTheme != null && currentTheme.Contains("DarkTheme"))
             {
-                // Apply light theme
                 this.Resources.MergedDictionaries.Clear();
                 this.Resources.MergedDictionaries.Add(new ResourceDictionary()
                 {
@@ -202,7 +192,6 @@ namespace WeatherApp
             }
             else
             {
-                // Apply dark theme
                 this.Resources.MergedDictionaries.Clear();
                 this.Resources.MergedDictionaries.Add(new ResourceDictionary()
                 {
@@ -211,34 +200,79 @@ namespace WeatherApp
             }
         }
 
+        // Update the WrapPanel that shows search history
+        private void UpdateSearchHistoryList()
+        {
+            SearchHistoryPanel.Children.Clear();  // Clear existing buttons
+
+            foreach (var city in searchHistory)
+            {
+                Button historyButton = new Button
+                {
+                    Content = city,
+                    Width = 100,
+                    Height = 30,
+                    Margin = new Thickness(5),
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                historyButton.Click += (sender, e) =>
+                {
+                    CityTextBox.Text = city;
+                    GetWeatherButton_Click(sender, e);  // Trigger search for the selected city
+                };
+
+                SearchHistoryPanel.Children.Add(historyButton);  // Add button to WrapPanel
+            }
+        }
+
+        // Add city to search history and update the UI
+        private void AddCityToHistory(string city)
+        {
+            if (!searchHistory.Contains(city))
+            {
+                searchHistory.Add(city);
+                UpdateSearchHistoryList();
+                SaveSearchHistory(); // Save to a file or local storage
+            }
+        }
+
+        // Load search history from file or local storage
+        private void LoadSearchHistory()
+        {
+            // For simplicity, using in-memory history only in this example.
+            searchHistory = new List<string>(); // Replace with actual loading logic if needed
+            UpdateSearchHistoryList();
+        }
+
+        // Save search history to file or local storage
+        private void SaveSearchHistory()
+        {
+            // For simplicity, we're not implementing a file save here.
+        }
+
         // Root JSON response class
         public class WeatherResponse
         {
             public string Name { get; set; }
             public Main Main { get; set; }
-            public Weather[] Weather { get; set; }
-            public Coord Coord { get; set; }
+            public List<Weather> Weather { get; set; }
             public Wind Wind { get; set; }
+            public Coord Coord { get; set; }
             public int Visibility { get; set; }
-
-            public Alert[] Alerts { get; set; } // Added Alerts property here
+            public List<Alert> Alerts { get; set; }
         }
 
         public class Main
         {
-            public double Temp { get; set; } // Temperature
-            public int Humidity { get; set; } // Humidity
-            public int Pressure { get; set; } // Pressure
+            public double Temp { get; set; }
+            public int Humidity { get; set; }
+            public double Pressure { get; set; }
         }
 
         public class Weather
         {
-            public string Description { get; set; } // Weather description
-        }
-        public class Coord
-        {
-            public double Lat { get; set; }
-            public double Lon { get; set; }
+            public string Description { get; set; }
         }
 
         public class Wind
@@ -247,19 +281,16 @@ namespace WeatherApp
             public int Deg { get; set; }
         }
 
-        public class OneCallWeatherResponse
-{
-    public Alert[] Alerts { get; set; }
-}
+        public class Coord
+        {
+            public double Lat { get; set; }
+            public double Lon { get; set; }
+        }
 
-public class Alert
-{
-    public string SenderName { get; set; } // Who issued the alert
-    public string Event { get; set; } // Type of the weather event (e.g., storm, flood)
-    public long Start { get; set; } // Start time of the alert (Unix timestamp)
-    public long End { get; set; } // End time of the alert (Unix timestamp)
-    public string Description { get; set; } // Detailed description of the alert
-}
-
+        public class Alert
+        {
+            public string Event { get; set; }
+            public string Description { get; set; }
+        }
     }
 }
