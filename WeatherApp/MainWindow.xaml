@@ -21,7 +21,7 @@
 
         <!-- City Input Section -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
-            <TextBlock Text="Enter City Name:" FontSize="16" VerticalAlignment="Center" Margin="5" />
+            <TextBlock Text="Enter City Name:" FontSize="16" VerticalAlignment="Center" Margin="5" Foreground="{DynamicResource TextBrush}" />
             <TextBox x:Name="CityTextBox" FontSize="14" Width="200" Margin="5" VerticalContentAlignment="Center" />
             <Button Content="Get Weather" Width="120" Height="30" Margin="5" Click="GetWeatherButton_Click" />
         </StackPanel>
