@@ -52,6 +52,7 @@ namespace WeatherApp
         }
 
         // Display the weather details on the UI
+        // Display the weather details on the UI
         private void DisplayWeather(WeatherResponse weather, string unit)
         {
             CityNameText.Text = $"City: {weather.Name}";
@@ -75,11 +76,35 @@ namespace WeatherApp
 
             // Update the weather icon based on the weather description
             UpdateWeatherIcon(weather.Weather[0].Description);
+
+            // Display weather tips based on the condition
+            DisplayWeatherTips(weather.Weather[0].Description);
+        }
+
+        // Display weather tips based on the weather condition
+        private void DisplayWeatherTips(string weatherCondition)
+        {
+            string weatherTip = weatherCondition.ToLower() switch
+            {
+                "clear sky" => "It's a clear day! Perfect for outdoor activities. Don't forget your sunglasses.",
+                "few clouds" => "There are some clouds, but it's still a good day to go outside.",
+                "scattered clouds" => "There are scattered clouds in the sky. A light jacket may be needed.",
+                "broken clouds" => "It's a bit cloudy. Might want to carry an umbrella just in case.",
+                "shower rain" => "It's raining! Be sure to carry an umbrella or raincoat.",
+                "rain" => "It's raining heavily. Stay dry and take precautions while traveling.",
+                "thunderstorm" => "Thunderstorm alert! Stay indoors and avoid open areas.",
+                "snow" => "It's snowing! Bundle up and stay warm. Keep a close eye on travel conditions.",
+                "mist" => "The weather is misty. Drive carefully and keep your distance on the road.",
+                "haze" => "The weather is hazy. It's a bit hard to see, so be cautious while driving.",
+                _ => "No specific tips available. Stay safe and enjoy your day!"
+            };
+
+            WeatherTipsText.Text = $"Weather Tips: {weatherTip}";
         }
 
         private async Task<WeatherResponse> GetWeatherAsync(string city, string unit)
         {
-            string apiKey = "Enter your own key"; // Replace with your OpenWeather API key
+            string apiKey = "c2cfb03bac68bbf380f03cdbc32a83e4"; // Replace with your OpenWeather API key
             string cityUrl = $"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units={unit}";
 
             using (HttpClient client = new HttpClient())
