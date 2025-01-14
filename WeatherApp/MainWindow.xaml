@@ -9,6 +9,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header Section -->
@@ -52,9 +53,9 @@
         <!-- Weather Tips Section -->
         <Border Grid.Row="3" Background="#FFEFEFEF" BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Padding="10" Margin="10">
             <StackPanel>
-                <TextBlock Text="Weather Tips:" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" />
+                <TextBlock Text="Weather Tips:" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" />
                 <TextBlock x:Name="WeatherTipsText" Text="No tips available yet." TextWrapping="Wrap"
-                           FontSize="16" Foreground="{DynamicResource TextBrush}" Margin="0,5,0,0" />
+                           FontSize="14" Foreground="{DynamicResource TextBrush}" Margin="0,5,0,0" />
             </StackPanel>
         </Border>
 
@@ -66,7 +67,6 @@
 
         <!-- Search History Section (Buttons/Chips) -->
         <WrapPanel Grid.Row="5" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Name="SearchHistoryPanel">
-            <!-- Example button for search history -->
             <!-- Dynamically added buttons will go here -->
         </WrapPanel>
     </Grid>
